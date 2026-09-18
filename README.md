@@ -1,20 +1,26 @@
-# EcoMora — AI-Powered Community Biodiversity Assistant
+# 🌿 EcoMora — AI-Powered Community Biodiversity Assistant
 
-EcoMora is a full-stack web application designed to help communities discover, identify, record, and learn about local biodiversity.
+EcoMora is a full-stack web application that helps communities discover, identify, record, and learn about local biodiversity.
 
-The project supports **SDG 15 — Life on Land** by encouraging responsible biodiversity observation, community participation, and awareness of threats to ecosystems.
+The project was developed as part of the **1M1B AI for Sustainability Virtual Internship** and aligns with **SDG 15 — Life on Land**. IBM BOB was used during the ideation and development process to support the creation of the sustainability-focused solution.
 
-## 🌿 Features
+---
 
-* 🔍 **AI Species Identification** — Upload a species image and receive an AI-generated identification with confidence information.
-* 🌱 **Biodiversity Information** — Enrich identified species with taxonomic information from GBIF and biodiversity information from iNaturalist.
-* 📋 **Community Sightings** — Log, view, edit, and delete biodiversity observations.
-* 🗺️ **Interactive Biodiversity Map** — Explore community sightings using Leaflet and OpenStreetMap.
-* 🔎 **Sighting Filters** — Filter community observations by species and date range.
-* 💬 **Ask EcoMora** — Ask biodiversity questions using the local AI assistant and built-in biodiversity knowledge.
-* 📊 **Community Dashboard** — View total sightings, unique species, contributors, recent observations, and biodiversity trends.
-* 🔐 **User Authentication** — Secure registration, login, JWT-based authentication, and protected actions.
-* 🛡️ **Responsible AI & Privacy** — AI results include verification guidance, while exact sighting coordinates are hidden from public sighting cards.
+## 🌱 Project Overview
+
+EcoMora provides a community-focused platform for biodiversity observation and awareness.
+
+Users can:
+
+* 🔍 Identify species from uploaded images
+* 📋 Log and manage biodiversity sightings
+* 🗺️ Explore community sightings on an interactive map
+* 🔎 Filter sightings by species and date
+* 💬 Ask EcoMora biodiversity-related questions
+* 📊 View community biodiversity statistics
+* 🌍 Explore additional biodiversity information from iNaturalist and GBIF
+
+The application also includes responsible AI and location-privacy guidance to encourage safe and responsible biodiversity reporting.
 
 ---
 
@@ -22,60 +28,143 @@ The project supports **SDG 15 — Life on Land** by encouraging responsible biod
 
 ### SDG 15 — Life on Land
 
-EcoMora contributes to SDG 15 by helping communities:
+EcoMora supports SDG 15 by encouraging:
 
-* Observe and document local biodiversity.
-* Learn about wildlife, plants, and ecosystems.
-* Understand common threats to biodiversity.
-* Encourage responsible conservation awareness.
-* Build community biodiversity records.
+* Biodiversity observation and documentation
+* Community participation in biodiversity awareness
+* Learning about local wildlife, plants, and ecosystems
+* Awareness of biodiversity threats
+* Responsible conservation practices
 
 ---
 
-## 🧠 AI Approach
+## 🏢 Internship Context
 
-EcoMora uses a **free local AI approach** for the MVP.
+**Program:** 1M1B AI for Sustainability Virtual Internship
 
-### Species Identification
+**Project:** EcoMora — AI-Powered Community Biodiversity Assistant
 
-The application uses a locally running Hugging Face computer-vision model for image classification.
+**Primary SDG:** SDG 15 — Life on Land
 
-The model provides:
+**Ideation / Development Tool:** IBM BOB
+
+IBM BOB was used as part of the project ideation and development process. The final application was implemented using React, FastAPI, local AI models, SQLite, and biodiversity data APIs.
+
+---
+
+## ✨ Key Features
+
+### 🔍 AI Species Identification
+
+Users can upload an image to receive an AI-generated species prediction.
+
+The identification workflow provides:
 
 * Predicted species/common label
 * Confidence score
-* AI-generated identification description
+* Identification description
+* Biodiversity information from external sources when available
 
-Species identification is presented as a **prediction**, not a guaranteed scientific identification.
+Species identification is presented as an AI prediction and should be independently verified for important observations.
 
-### Biodiversity Q&A
+### 🌿 Community Sightings
 
-Ask EcoMora combines:
+Authenticated users can:
 
-* Built-in biodiversity knowledge for common questions.
-* A local **FLAN-T5** model as a fallback for other questions.
-* Community sighting context without exposing exact coordinates.
+* Add biodiversity sightings
+* Record species information
+* Add observation notes
+* Upload photos
+* Select observation locations
+* Edit their own sightings
+* Delete their own sightings
 
-This approach allows the MVP to run without requiring paid OpenAI API usage.
+### 🗺️ Biodiversity Map
+
+The interactive map allows users to:
+
+* View community biodiversity observations
+* Open sighting markers
+* Use Pick Location while adding a sighting
+* Filter observations by species
+* Filter observations by date range
+* Clear active filters
+
+The public interface hides exact coordinates from community sighting cards to support location privacy.
+
+### 💬 Ask EcoMora
+
+Ask EcoMora provides a conversational biodiversity assistant.
+
+Users can ask questions about:
+
+* Wildlife
+* Plants
+* Fungi
+* Ecosystems
+* Biodiversity threats
+* Habitat loss
+* Pollution
+* Climate change
+* Conservation
+
+The assistant combines built-in biodiversity knowledge with a local AI model for additional questions.
+
+### 📊 Community Dashboard
+
+The dashboard provides:
+
+* Total sightings
+* Unique species
+* Active contributors
+* Recent sightings
+* Sighting trends
+* Top contributors
+
+The dashboard represents community activity and is not intended to replace a scientific biodiversity survey.
 
 ---
 
-## 🌍 External Biodiversity Data
+## 🤖 AI Implementation
 
-EcoMora integrates with:
+EcoMora uses free, locally running AI models for the MVP.
 
-### iNaturalist
+### Species Identification
 
-Used to retrieve biodiversity information such as:
+The application uses:
 
-* Common species name
+**Hugging Face Transformers + ResNet-50**
+
+The model performs image classification locally and returns a prediction with a confidence score.
+
+### Biodiversity Q&A
+
+Ask EcoMora uses:
+
+**Hugging Face FLAN-T5**
+
+The chat system also includes a built-in biodiversity knowledge layer for common biodiversity questions.
+
+This local AI approach allows the MVP to operate without relying on paid OpenAI API usage.
+
+---
+
+## 🌍 Biodiversity Data Sources
+
+EcoMora integrates external biodiversity services to enrich species information.
+
+### iNaturalist API
+
+Used for available species information such as:
+
+* Common name
 * Species image
-* Taxon information
-* iNaturalist reference
+* Taxon reference
+* iNaturalist page
 
-### GBIF
+### GBIF API
 
-Used to retrieve taxonomic information such as:
+Used for available taxonomic information such as:
 
 * Kingdom
 * Phylum
@@ -90,42 +179,42 @@ Used to retrieve taxonomic information such as:
 
 ## 🛡️ Responsible AI & Privacy
 
-EcoMora is designed with responsible AI principles in mind.
+EcoMora includes responsible AI and privacy considerations throughout the application.
 
-### AI uncertainty
+### AI Verification
 
-Species identification results are AI-generated predictions and may be incorrect. Important observations should be verified using reliable biodiversity sources before making conservation decisions.
+AI-generated species identifications may be incorrect. Users are encouraged to verify important observations using reliable biodiversity sources before making conservation-related decisions.
 
-### Location privacy
+### Location Privacy
 
 Users are encouraged to use approximate observation locations when possible, especially for rare or vulnerable species.
 
-Exact coordinates are not displayed publicly on community sighting cards.
+Exact coordinates are hidden from public community sighting cards.
 
-### Data minimization
+### Data Minimization
 
-Community-facing biodiversity records avoid exposing unnecessary sensitive location information.
+The application avoids displaying unnecessary exact location information in public-facing biodiversity records.
 
 ---
 
-## 🧰 Tech Stack
+## 🧰 Technology Stack
 
-| Layer                | Technology                              |
-| -------------------- | --------------------------------------- |
-| Frontend             | React + Vite + TypeScript               |
-| Styling              | Tailwind CSS                            |
-| Mapping              | Leaflet + OpenStreetMap + React-Leaflet |
-| Charts               | Recharts                                |
-| Backend              | FastAPI + Python 3.11                   |
-| Database             | SQLite                                  |
-| ORM                  | SQLAlchemy                              |
-| Migrations           | Alembic                                 |
-| Authentication       | JWT Bearer Tokens                       |
-| AI / Computer Vision | Hugging Face Transformers + ResNet-50   |
-| AI Q&A               | Hugging Face FLAN-T5                    |
-| Biodiversity Data    | iNaturalist API + GBIF API              |
-| HTTP Client          | HTTPX                                   |
-| Containerization     | Docker + Docker Compose                 |
+| Layer               | Technology                              |
+| ------------------- | --------------------------------------- |
+| Frontend            | React + Vite + TypeScript               |
+| Styling             | Tailwind CSS                            |
+| Mapping             | Leaflet + OpenStreetMap + React-Leaflet |
+| Charts              | Recharts                                |
+| Backend             | FastAPI + Python 3.11                   |
+| Database            | SQLite                                  |
+| ORM                 | SQLAlchemy                              |
+| Database Migrations | Alembic                                 |
+| Authentication      | JWT Bearer Tokens                       |
+| Image AI            | Hugging Face Transformers + ResNet-50   |
+| Chat AI             | Hugging Face FLAN-T5                    |
+| Biodiversity Data   | iNaturalist API + GBIF API              |
+| HTTP Client         | HTTPX                                   |
+| Containerization    | Docker + Docker Compose                 |
 
 ---
 
@@ -169,6 +258,8 @@ EcoMora/
 
 ### Prerequisites
 
+Make sure the following are installed:
+
 * Python 3.11
 * Node.js
 * npm
@@ -178,18 +269,22 @@ Docker is optional for local development.
 
 ---
 
-## ⚙️ Manual Setup
-
-### 1. Clone the repository
+## 1. Clone the Repository
 
 ```bash
 git clone https://github.com/CodexPayal/EcoMora.git
 cd EcoMora
 ```
 
-### 2. Configure environment variables
+---
 
-Copy `.env.example` to `.env`.
+## 2. Configure Environment Variables
+
+Copy the example environment file:
+
+```bash
+cp .env.example .env
+```
 
 For local development, use:
 
@@ -197,29 +292,31 @@ For local development, use:
 DATABASE_URL=sqlite:///./ecomora.db
 ```
 
-Generate a secure JWT secret with:
+Generate a secure JWT secret:
 
 ```bash
 python -c "import secrets; print(secrets.token_hex(32))"
 ```
 
-Add the generated value to:
+Then add the generated value to `.env`:
 
 ```env
 JWT_SECRET=your-generated-secret
 ```
 
-> Never commit `.env` or any API keys/secrets to GitHub.
+> **Important:** Never commit `.env`, passwords, API keys, or other secrets to GitHub.
 
 ---
 
-## 🐍 Backend Setup
+## 3. Backend Setup
+
+Open a terminal in the backend directory:
 
 ```bash
 cd backend
 ```
 
-Create a virtual environment:
+Create a Python virtual environment:
 
 ### Windows
 
@@ -241,7 +338,7 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
-Run the backend:
+Start the FastAPI development server:
 
 ```bash
 uvicorn main:app --reload --env-file ..\.env
@@ -261,7 +358,7 @@ http://127.0.0.1:8000/docs
 
 ---
 
-## ⚛️ Frontend Setup
+## 4. Frontend Setup
 
 Open a new terminal:
 
@@ -277,46 +374,45 @@ Frontend:
 http://localhost:5173
 ```
 
-The frontend communicates with the FastAPI backend through the configured API client.
-
 ---
 
-## 🐳 Docker Setup
+## 🐳 Docker
 
-Docker Compose configuration is included for containerized deployment.
+Docker configuration is included through Docker Compose.
+
+To run the containerized application:
 
 ```bash
 docker compose up --build
 ```
 
-The Docker setup includes:
+The configuration includes:
 
-* React frontend served through Nginx
-* FastAPI backend
-* SQLite database
-* Persistent application storage
+* Frontend container
+* FastAPI backend container
+* Persistent application storage configuration
 
-Docker configuration is intended for environments where Docker is available.
+Docker is provided as part of the project's deployment configuration.
 
 ---
 
 ## 🔌 API Overview
 
-| Method   | Endpoint             | Description                         |
-| -------- | -------------------- | ----------------------------------- |
-| `GET`    | `/health`            | Backend health check                |
-| `POST`   | `/auth/register`     | Register a user                     |
-| `POST`   | `/auth/login`        | Login and receive JWT               |
-| `GET`    | `/auth/me`           | Get authenticated user              |
-| `POST`   | `/identify/identify` | Identify a species from an image    |
-| `GET`    | `/sightings`         | List community sightings            |
-| `POST`   | `/sightings`         | Create a sighting                   |
-| `PATCH`  | `/sightings/{id}`    | Update a user's sighting            |
-| `DELETE` | `/sightings/{id}`    | Delete a user's sighting            |
-| `POST`   | `/chat`              | Ask EcoMora a biodiversity question |
-| `GET`    | `/dashboard/stats`   | Retrieve dashboard statistics       |
+| Method   | Endpoint             | Authentication | Description                         |
+| -------- | -------------------- | -------------- | ----------------------------------- |
+| `GET`    | `/health`            | —              | Backend health check                |
+| `POST`   | `/auth/register`     | —              | Register a user                     |
+| `POST`   | `/auth/login`        | —              | Login and receive JWT               |
+| `GET`    | `/auth/me`           | ✅              | Get authenticated user              |
+| `POST`   | `/identify/identify` | ✅              | Identify a species from an image    |
+| `GET`    | `/sightings`         | —              | List community sightings            |
+| `POST`   | `/sightings`         | ✅              | Create a sighting                   |
+| `PATCH`  | `/sightings/{id}`    | ✅              | Update own sighting                 |
+| `DELETE` | `/sightings/{id}`    | ✅              | Delete own sighting                 |
+| `POST`   | `/chat`              | ✅              | Ask EcoMora a biodiversity question |
+| `GET`    | `/dashboard/stats`   | —              | Retrieve dashboard statistics       |
 
-Interactive API documentation is available through FastAPI Swagger UI at:
+Interactive API documentation:
 
 ```text
 http://127.0.0.1:8000/docs
@@ -324,108 +420,87 @@ http://127.0.0.1:8000/docs
 
 ---
 
-## 🗺️ Biodiversity Mapping
-
-EcoMora uses **Leaflet** with **OpenStreetMap** to display community biodiversity observations.
-
-Users can:
-
-* View logged sightings on the map.
-* Filter sightings by species and date.
-* Use **Pick Location** when adding a sighting.
-* Clear active filters.
-* Open a marker to view observation details.
-
-Exact coordinates are not displayed in public sighting cards.
-
----
-
-## 📊 Community Dashboard
-
-The dashboard provides a community-level overview including:
-
-* Total sightings
-* Unique species
-* Active contributors
-* Recent sightings
-* Sighting trends
-* Top contributors
-
-The dashboard is intended to provide a simple view of community biodiversity activity rather than a scientific population survey.
-
----
-
-## 💬 Ask EcoMora
-
-Ask EcoMora provides a conversational interface for biodiversity questions.
-
-Example questions:
-
-```text
-What are the common threats to local biodiversity?
-
-How does habitat loss affect wildlife?
-
-Why is biodiversity important?
-
-How can I help protect local biodiversity?
-```
-
-The assistant is designed to provide concise educational information and should not be treated as a substitute for expert ecological assessment.
-
----
-
-## 🔐 Security
+## 🔐 Authentication & Security
 
 EcoMora uses:
 
-* JWT authentication
+* JWT bearer authentication
 * Protected API routes
 * Password hashing
+* User-specific permissions
 * Environment variables for secrets
 * CORS configuration
-* User-specific permissions for editing and deleting sightings
+* Protected edit/delete operations
 
-Sensitive configuration values should always remain in `.env`.
+Sensitive configuration values should remain in `.env` and must not be committed to version control.
 
 ---
 
-## 📌 Project Status
+## 🗺️ Location Privacy
 
-**EcoMora MVP — Completed**
+EcoMora uses geographic coordinates to support biodiversity mapping.
 
-Implemented:
+The application encourages users to provide approximate observation locations rather than exact sensitive locations when appropriate.
 
-* ✅ Full-stack React + FastAPI application
-* ✅ User authentication
-* ✅ AI species identification
+Public community sighting cards display:
+
+```text
+📍 Approximate location
+Exact coordinates are hidden to protect location privacy.
+```
+
+Coordinates are still used internally to position biodiversity observations on the map.
+
+---
+
+## 📊 Project Status
+
+### MVP Implementation
+
+* ✅ React + Vite frontend
+* ✅ FastAPI backend
+* ✅ SQLite database
+* ✅ User registration and login
+* ✅ JWT authentication
+* ✅ AI image-based species identification
 * ✅ Local/free AI inference
 * ✅ iNaturalist integration
 * ✅ GBIF integration
 * ✅ Community sighting management
 * ✅ Interactive biodiversity map
-* ✅ Sighting filters
+* ✅ Species/date filters
+* ✅ Pick Location
 * ✅ Community dashboard
 * ✅ Ask EcoMora
 * ✅ Responsible AI messaging
 * ✅ Location privacy protection
 * ✅ Docker configuration
+* ✅ GitHub repository
 
 ---
 
 ## 🔮 Future Scope
 
-Potential future improvements include:
+Possible future improvements include:
 
-* More specialized biodiversity identification models.
-* Better text-based species identification.
-* Offline/mobile support.
-* More biodiversity datasets.
-* Advanced ecological analytics.
-* Community moderation tools.
-* Species rarity and conservation-status indicators.
-* Production cloud deployment.
-* Improved image verification and confidence handling.
+* More specialized biodiversity identification models
+* Improved text-based species identification
+* Additional biodiversity datasets
+* Species conservation-status information
+* Advanced ecological analytics
+* Community moderation
+* Mobile application support
+* Offline biodiversity observation support
+* Production cloud deployment
+* Improved image verification and confidence handling
+
+---
+
+## 📚 Project Purpose
+
+EcoMora demonstrates how AI, web technologies, community participation, and biodiversity data can be combined to create a sustainability-focused digital solution.
+
+The project focuses on making biodiversity observation and learning more accessible while considering AI uncertainty and location privacy.
 
 ---
 
