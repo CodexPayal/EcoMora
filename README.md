@@ -1,202 +1,434 @@
 # EcoMora — AI-Powered Community Biodiversity Assistant
 
-EcoMora is a full-stack web application that helps communities discover, log, and learn about local biodiversity. Users can:
+EcoMora is a full-stack web application designed to help communities discover, identify, record, and learn about local biodiversity.
 
-- 🔍 **Identify species** by uploading a photo or writing a description (GPT-4o Vision)
-- 📋 **Log sightings** with coordinates, notes, and photos, tied to their account
-- 🗺️ **Explore the map** — all community sightings rendered as interactive pins on OpenStreetMap
-- 💬 **Ask the AI assistant** open-ended biodiversity questions grounded in community data
-- 📊 **View the dashboard** for community statistics, top contributors, and sighting trends
+The project supports **SDG 15 — Life on Land** by encouraging responsible biodiversity observation, community participation, and awareness of threats to ecosystems.
 
----
+## 🌿 Features
 
-## Tech Stack
-
-| Layer | Technology |
-|-------|-----------|
-| Frontend | React 18 + Vite + TypeScript + Tailwind CSS |
-| Mapping | Leaflet / OpenStreetMap (react-leaflet v4) |
-| Charts | Recharts |
-| Backend | FastAPI (Python 3.11) + SQLAlchemy ORM + Alembic |
-| Database | SQLite (`ecomora.db`) — persisted via Docker named volume |
-| AI | OpenAI API (GPT-4o / GPT-4o Vision) |
-| External APIs | iNaturalist API, GBIF API |
-| Auth | JWT Bearer tokens |
-| Deployment | Docker Compose (local) · Render (backend) · Vercel (frontend) |
+* 🔍 **AI Species Identification** — Upload a species image and receive an AI-generated identification with confidence information.
+* 🌱 **Biodiversity Information** — Enrich identified species with taxonomic information from GBIF and biodiversity information from iNaturalist.
+* 📋 **Community Sightings** — Log, view, edit, and delete biodiversity observations.
+* 🗺️ **Interactive Biodiversity Map** — Explore community sightings using Leaflet and OpenStreetMap.
+* 🔎 **Sighting Filters** — Filter community observations by species and date range.
+* 💬 **Ask EcoMora** — Ask biodiversity questions using the local AI assistant and built-in biodiversity knowledge.
+* 📊 **Community Dashboard** — View total sightings, unique species, contributors, recent observations, and biodiversity trends.
+* 🔐 **User Authentication** — Secure registration, login, JWT-based authentication, and protected actions.
+* 🛡️ **Responsible AI & Privacy** — AI results include verification guidance, while exact sighting coordinates are hidden from public sighting cards.
 
 ---
 
-## Project Structure
+## 🎯 Sustainable Development Goal
 
-```
-ecomora/
-├── frontend/              # React + Vite + Tailwind
+### SDG 15 — Life on Land
+
+EcoMora contributes to SDG 15 by helping communities:
+
+* Observe and document local biodiversity.
+* Learn about wildlife, plants, and ecosystems.
+* Understand common threats to biodiversity.
+* Encourage responsible conservation awareness.
+* Build community biodiversity records.
+
+---
+
+## 🧠 AI Approach
+
+EcoMora uses a **free local AI approach** for the MVP.
+
+### Species Identification
+
+The application uses a locally running Hugging Face computer-vision model for image classification.
+
+The model provides:
+
+* Predicted species/common label
+* Confidence score
+* AI-generated identification description
+
+Species identification is presented as a **prediction**, not a guaranteed scientific identification.
+
+### Biodiversity Q&A
+
+Ask EcoMora combines:
+
+* Built-in biodiversity knowledge for common questions.
+* A local **FLAN-T5** model as a fallback for other questions.
+* Community sighting context without exposing exact coordinates.
+
+This approach allows the MVP to run without requiring paid OpenAI API usage.
+
+---
+
+## 🌍 External Biodiversity Data
+
+EcoMora integrates with:
+
+### iNaturalist
+
+Used to retrieve biodiversity information such as:
+
+* Common species name
+* Species image
+* Taxon information
+* iNaturalist reference
+
+### GBIF
+
+Used to retrieve taxonomic information such as:
+
+* Kingdom
+* Phylum
+* Class
+* Order
+* Family
+* Genus
+* Scientific name
+* Taxonomic status
+
+---
+
+## 🛡️ Responsible AI & Privacy
+
+EcoMora is designed with responsible AI principles in mind.
+
+### AI uncertainty
+
+Species identification results are AI-generated predictions and may be incorrect. Important observations should be verified using reliable biodiversity sources before making conservation decisions.
+
+### Location privacy
+
+Users are encouraged to use approximate observation locations when possible, especially for rare or vulnerable species.
+
+Exact coordinates are not displayed publicly on community sighting cards.
+
+### Data minimization
+
+Community-facing biodiversity records avoid exposing unnecessary sensitive location information.
+
+---
+
+## 🧰 Tech Stack
+
+| Layer                | Technology                              |
+| -------------------- | --------------------------------------- |
+| Frontend             | React + Vite + TypeScript               |
+| Styling              | Tailwind CSS                            |
+| Mapping              | Leaflet + OpenStreetMap + React-Leaflet |
+| Charts               | Recharts                                |
+| Backend              | FastAPI + Python 3.11                   |
+| Database             | SQLite                                  |
+| ORM                  | SQLAlchemy                              |
+| Migrations           | Alembic                                 |
+| Authentication       | JWT Bearer Tokens                       |
+| AI / Computer Vision | Hugging Face Transformers + ResNet-50   |
+| AI Q&A               | Hugging Face FLAN-T5                    |
+| Biodiversity Data    | iNaturalist API + GBIF API              |
+| HTTP Client          | HTTPX                                   |
+| Containerization     | Docker + Docker Compose                 |
+
+---
+
+## 📁 Project Structure
+
+```text
+EcoMora/
+├── frontend/
 │   ├── src/
-│   │   ├── pages/         # IdentifyPage, MapPage, ChatPage, DashboardPage, …
-│   │   ├── components/    # IdentificationResult, SightingCard, ChatBubble, …
-│   │   ├── context/       # AuthContext
-│   │   ├── hooks/         # useAuth, useSightings, …
-│   │   └── api/           # client.ts (Axios instance)
-│   ├── Dockerfile         # Node build → Nginx serve (multi-stage)
-│   └── nginx.conf         # SPA fallback + /api proxy → backend
-├── backend/               # FastAPI + SQLAlchemy + Alembic
-│   ├── routers/           # auth, identify, sightings, chat, dashboard
-│   ├── models/            # User, Species, Sighting
-│   ├── schemas/           # Pydantic schemas
-│   ├── services/          # openai_service, inaturalist_service, gbif_service
-│   ├── core/              # database.py, security.py
-│   ├── static/uploads/    # uploaded photos (mounted as Docker volume)
+│   │   ├── api/
+│   │   ├── components/
+│   │   ├── context/
+│   │   ├── hooks/
+│   │   └── pages/
+│   ├── Dockerfile
+│   ├── nginx.conf
+│   ├── package.json
+│   └── vite.config.ts
+│
+├── backend/
+│   ├── alembic/
+│   ├── core/
+│   ├── models/
+│   ├── routers/
+│   ├── schemas/
+│   ├── services/
+│   ├── static/
 │   ├── main.py
 │   ├── requirements.txt
-│   └── Dockerfile         # Python 3.11-slim + uvicorn
+│   └── Dockerfile
+│
 ├── docker-compose.yml
 ├── .env.example
+├── ecomora-plan.md
 └── README.md
 ```
 
 ---
 
-## Quick-Start — Docker Compose (recommended)
+## 🚀 Getting Started
 
-**Prerequisites:** [Docker Desktop](https://www.docker.com/products/docker-desktop/) ≥ 24
+### Prerequisites
 
-```bash
-# 1. Clone the repository
-git clone https://github.com/your-org/ecomora.git
-cd ecomora
+* Python 3.11
+* Node.js
+* npm
+* Git
 
-# 2. Create your .env file and fill in the secrets
-cp .env.example .env
-# Open .env and set: OPENAI_API_KEY, JWT_SECRET (at minimum)
-
-# 3. Build and start all services
-docker compose up --build
-```
-
-| Service | URL |
-|---------|-----|
-| Frontend (Nginx) | http://localhost |
-| Backend API | http://localhost:8000 |
-| Interactive API docs | http://localhost:8000/docs |
-
-> The SQLite database (`ecomora.db`) and uploaded photos are stored in named Docker volumes so they **persist across container restarts**. Run `docker compose down -v` only if you want to wipe all data.
+Docker is optional for local development.
 
 ---
 
-## Manual Setup (without Docker)
+## ⚙️ Manual Setup
 
-### Backend
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/CodexPayal/EcoMora.git
+cd EcoMora
+```
+
+### 2. Configure environment variables
+
+Copy `.env.example` to `.env`.
+
+For local development, use:
+
+```env
+DATABASE_URL=sqlite:///./ecomora.db
+```
+
+Generate a secure JWT secret with:
+
+```bash
+python -c "import secrets; print(secrets.token_hex(32))"
+```
+
+Add the generated value to:
+
+```env
+JWT_SECRET=your-generated-secret
+```
+
+> Never commit `.env` or any API keys/secrets to GitHub.
+
+---
+
+## 🐍 Backend Setup
 
 ```bash
 cd backend
-
-# Create and activate a virtual environment
-python -m venv .venv
-# Windows:
-.venv\Scripts\activate
-# macOS / Linux:
-source .venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Copy environment variables and fill in values
-cp ../.env.example ../.env
-
-# For local dev, override DATABASE_URL to use a local file
-# In .env set: DATABASE_URL=sqlite:///./ecomora.db
-
-# Run database migrations
-alembic upgrade head
-
-# Start the development server (auto-reload)
-uvicorn main:app --reload --port 8000
 ```
 
-### Frontend
+Create a virtual environment:
 
-> **Note:** `node_modules/` is gitignored — run `npm install` in `frontend/` after every fresh clone or dependency change.
+### Windows
+
+```powershell
+py -3.11 -m venv .venv
+.venv\Scripts\activate
+```
+
+### macOS / Linux
+
+```bash
+python3.11 -m venv .venv
+source .venv/bin/activate
+```
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Run the backend:
+
+```bash
+uvicorn main:app --reload --env-file ..\.env
+```
+
+Backend:
+
+```text
+http://127.0.0.1:8000
+```
+
+Interactive API documentation:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+---
+
+## ⚛️ Frontend Setup
+
+Open a new terminal:
 
 ```bash
 cd frontend
-npm install          # required after cloning
-npm run dev          # starts at http://localhost:5173
+npm install
+npm run dev
 ```
 
-The Vite dev server proxies `/api/*` → `http://localhost:8000` (configured in `vite.config.ts`). In production (Docker), Nginx handles the same proxy.
+Frontend:
+
+```text
+http://localhost:5173
+```
+
+The frontend communicates with the FastAPI backend through the configured API client.
 
 ---
 
-## Environment Variables
+## 🐳 Docker Setup
 
-Copy `.env.example` → `.env` and fill in the values below. **Never commit `.env` to version control.**
+Docker Compose configuration is included for containerized deployment.
 
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `OPENAI_API_KEY` | ✅ | — | OpenAI API key for GPT-4o species identification and chat |
-| `JWT_SECRET` | ✅ | — | Secret used to sign JWT access tokens. Generate with: `python -c "import secrets; print(secrets.token_hex(32))"` |
-| `DATABASE_URL` | | `sqlite:////app/data/ecomora.db` | SQLAlchemy connection URL. Use the default for Docker; set to `sqlite:///./ecomora.db` for manual local dev |
-| `JWT_ALGORITHM` | | `HS256` | JWT signing algorithm |
-| `ACCESS_TOKEN_EXPIRE_MINUTES` | | `60` | Token lifetime in minutes |
-| `ALLOWED_ORIGINS` | | `http://localhost` | Comma-separated list of allowed CORS origins for the FastAPI middleware |
+```bash
+docker compose up --build
+```
 
----
+The Docker setup includes:
 
-## API Reference
+* React frontend served through Nginx
+* FastAPI backend
+* SQLite database
+* Persistent application storage
 
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| `GET` | `/health` | — | Health check → `{"status": "ok"}` |
-| `POST` | `/auth/register` | — | Register a new user |
-| `POST` | `/auth/login` | — | Login, returns JWT access token |
-| `GET` | `/auth/me` | ✅ | Get current authenticated user |
-| `POST` | `/identify` | ✅ | Identify a species from image/description |
-| `GET` | `/sightings` | — | List all sightings (paginated) |
-| `POST` | `/sightings` | ✅ | Create a new sighting |
-| `GET` | `/sightings/{id}` | — | Get a single sighting |
-| `PATCH` | `/sightings/{id}` | ✅ | Update own sighting |
-| `DELETE` | `/sightings/{id}` | ✅ | Delete own sighting |
-| `POST` | `/chat` | ✅ | Ask the biodiversity AI assistant |
-| `GET` | `/dashboard/stats` | — | Community statistics |
-
-Full interactive docs: **http://localhost:8000/docs**
+Docker configuration is intended for environments where Docker is available.
 
 ---
 
-## Deployment
+## 🔌 API Overview
 
-### Backend → Render (free tier)
+| Method   | Endpoint             | Description                         |
+| -------- | -------------------- | ----------------------------------- |
+| `GET`    | `/health`            | Backend health check                |
+| `POST`   | `/auth/register`     | Register a user                     |
+| `POST`   | `/auth/login`        | Login and receive JWT               |
+| `GET`    | `/auth/me`           | Get authenticated user              |
+| `POST`   | `/identify/identify` | Identify a species from an image    |
+| `GET`    | `/sightings`         | List community sightings            |
+| `POST`   | `/sightings`         | Create a sighting                   |
+| `PATCH`  | `/sightings/{id}`    | Update a user's sighting            |
+| `DELETE` | `/sightings/{id}`    | Delete a user's sighting            |
+| `POST`   | `/chat`              | Ask EcoMora a biodiversity question |
+| `GET`    | `/dashboard/stats`   | Retrieve dashboard statistics       |
 
-1. Push the repository to GitHub.
-2. Go to [render.com](https://render.com) → **New → Web Service**.
-3. Connect your GitHub repo; set **Root Directory** to `backend`.
-4. **Runtime:** Docker (Render will detect the `Dockerfile` automatically).
-5. Set the following **Environment Variables** in the Render dashboard:
-   - `OPENAI_API_KEY` — your OpenAI key
-   - `JWT_SECRET` — a strong random hex string
-   - `DATABASE_URL` — `sqlite:////data/ecomora.db` (use Render's persistent disk, see below)
-   - `JWT_ALGORITHM` — `HS256`
-   - `ACCESS_TOKEN_EXPIRE_MINUTES` — `60`
-   - `ALLOWED_ORIGINS` — your Vercel frontend URL, e.g. `https://ecomora.vercel.app`
-6. Under **Disks**, add a persistent disk mounted at `/data` (at least 1 GB) so the SQLite file and uploads survive deploys.
-7. Click **Deploy**. The backend will be available at `https://<your-service>.onrender.com`.
+Interactive API documentation is available through FastAPI Swagger UI at:
 
-> **Note:** Free-tier Render instances spin down after 15 minutes of inactivity. The first request after a cold start may take ~30 seconds.
-
-### Frontend → Vercel
-
-1. Go to [vercel.com](https://vercel.com) → **Add New → Project**.
-2. Import the same GitHub repository; set **Root Directory** to `frontend`.
-3. Vercel auto-detects Vite — no framework override needed.
-4. Add one **Environment Variable:**
-   - `VITE_API_URL` — the full Render backend URL, e.g. `https://<your-service>.onrender.com`
-5. Click **Deploy**. The frontend is live at `https://<your-project>.vercel.app`.
-
-> The Nginx `/api` proxy is only used in the Docker Compose setup. On Vercel, the frontend calls `VITE_API_URL` directly.  
-> Add the Vercel URL to `ALLOWED_ORIGINS` on Render to allow CORS.
+```text
+http://127.0.0.1:8000/docs
+```
 
 ---
 
-## License
+## 🗺️ Biodiversity Mapping
 
-MIT
+EcoMora uses **Leaflet** with **OpenStreetMap** to display community biodiversity observations.
+
+Users can:
+
+* View logged sightings on the map.
+* Filter sightings by species and date.
+* Use **Pick Location** when adding a sighting.
+* Clear active filters.
+* Open a marker to view observation details.
+
+Exact coordinates are not displayed in public sighting cards.
+
+---
+
+## 📊 Community Dashboard
+
+The dashboard provides a community-level overview including:
+
+* Total sightings
+* Unique species
+* Active contributors
+* Recent sightings
+* Sighting trends
+* Top contributors
+
+The dashboard is intended to provide a simple view of community biodiversity activity rather than a scientific population survey.
+
+---
+
+## 💬 Ask EcoMora
+
+Ask EcoMora provides a conversational interface for biodiversity questions.
+
+Example questions:
+
+```text
+What are the common threats to local biodiversity?
+
+How does habitat loss affect wildlife?
+
+Why is biodiversity important?
+
+How can I help protect local biodiversity?
+```
+
+The assistant is designed to provide concise educational information and should not be treated as a substitute for expert ecological assessment.
+
+---
+
+## 🔐 Security
+
+EcoMora uses:
+
+* JWT authentication
+* Protected API routes
+* Password hashing
+* Environment variables for secrets
+* CORS configuration
+* User-specific permissions for editing and deleting sightings
+
+Sensitive configuration values should always remain in `.env`.
+
+---
+
+## 📌 Project Status
+
+**EcoMora MVP — Completed**
+
+Implemented:
+
+* ✅ Full-stack React + FastAPI application
+* ✅ User authentication
+* ✅ AI species identification
+* ✅ Local/free AI inference
+* ✅ iNaturalist integration
+* ✅ GBIF integration
+* ✅ Community sighting management
+* ✅ Interactive biodiversity map
+* ✅ Sighting filters
+* ✅ Community dashboard
+* ✅ Ask EcoMora
+* ✅ Responsible AI messaging
+* ✅ Location privacy protection
+* ✅ Docker configuration
+
+---
+
+## 🔮 Future Scope
+
+Potential future improvements include:
+
+* More specialized biodiversity identification models.
+* Better text-based species identification.
+* Offline/mobile support.
+* More biodiversity datasets.
+* Advanced ecological analytics.
+* Community moderation tools.
+* Species rarity and conservation-status indicators.
+* Production cloud deployment.
+* Improved image verification and confidence handling.
+
+---
+
+## 📄 License
+
+MIT License
