@@ -1,0 +1,2 @@
+# This directory stores user-uploaded photos.
+# Files are saved here by the sightings router and served via /static/uploads/.

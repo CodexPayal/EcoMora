@@ -1,0 +1,12 @@
+// Components barrel — export shared UI components here
+export { default as ProtectedRoute } from './ProtectedRoute'
+export { default as IdentificationResult } from './IdentificationResult'
+export type { IdentificationData } from './IdentificationResult'
+export { default as SightingCard } from './SightingCard'
+export type { SightingData } from './SightingCard'
+export { default as SightingMarker } from './SightingMarker'
+export { default as ChatBubble } from './ChatBubble'
+export type { Message as ChatMessage } from './ChatBubble'
+export { default as StatCard } from './StatCard'
+export { default as TopContributors } from './TopContributors'
+export type { ContributorStat } from './TopContributors'

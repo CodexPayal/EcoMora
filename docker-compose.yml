@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+  # ── Backend (FastAPI + Uvicorn) ──────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ecomora-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=${DATABASE_URL:-sqlite:////app/data/ecomora.db}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-60}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost}
+    ports:
+      - "8000:8000"
+    volumes:
+      - sqlite_data:/app/data
+      - uploads_data:/app/static/uploads
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ── Frontend (Nginx serving built Vite app) ──────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ecomora-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+# ── Named volumes for data persistence ──────────────────────────────────────
+volumes:
+  sqlite_data:
+    driver: local
+  uploads_data:
+    driver: local

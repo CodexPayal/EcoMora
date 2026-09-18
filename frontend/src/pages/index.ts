@@ -1,0 +1,9 @@
+// Pages barrel — export page-level components here
+export { default as LoginPage } from './LoginPage'
+export { default as RegisterPage } from './RegisterPage'
+export { default as DashboardPage } from './DashboardPage'
+export { default as IdentifyPage } from './IdentifyPage'
+export { default as SightingsPage } from './SightingsPage'
+export { default as LogSightingPage } from './LogSightingPage'
+export { default as MapPage } from './MapPage'
+export { default as ChatPage } from './ChatPage'
