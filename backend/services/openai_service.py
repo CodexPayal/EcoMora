@@ -19,15 +19,19 @@ def _local_ai_enabled() -> bool:
 
 
 def _get_classifier():
-    """Load the heavy vision model only when local AI is enabled."""
+    """Load a lightweight vision model for deployment."""
     global _classifier
 
     if _classifier is None:
+        import torch
         from transformers import pipeline
+
+        torch.set_num_threads(1)
 
         _classifier = pipeline(
             "image-classification",
-            model="microsoft/resnet-50",
+            model="google/mobilenet_v2_1.0_224",
+            device=-1,
         )
 
     return _classifier
