@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react'
 import { useDropzone, FileRejection } from 'react-dropzone'
 import client from '../api/client'
-import { useAuth } from '../context/AuthContext'
 import IdentificationResult, {
   IdentificationData,
 } from '../components/IdentificationResult'
@@ -9,8 +8,6 @@ import IdentificationResult, {
 const MAX_SIZE_BYTES = 10 * 1024 * 1024 // 10 MB
 
 export default function IdentifyPage() {
-  const { token } = useAuth()
-
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
   const [description, setDescription] = useState('')
@@ -25,13 +22,7 @@ export default function IdentifyPage() {
         setError('File rejected. Only images up to 10 MB are allowed.')
         return
       }
-
       const file = accepted[0]
-
-      if (!file) {
-        return
-      }
-
       setImageFile(file)
       setPreview(URL.createObjectURL(file))
       setError(null)
@@ -49,14 +40,8 @@ export default function IdentifyPage() {
   // ── Submit ────────────────────────────────────────────────────────────────
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-
     if (!imageFile && !description.trim()) {
       setError('Please upload an image or enter a description.')
-      return
-    }
-
-    if (!token) {
-      setError('Please log in again before identifying a species.')
       return
     }
 
@@ -66,31 +51,17 @@ export default function IdentifyPage() {
 
     try {
       const form = new FormData()
+      if (imageFile) form.append('image', imageFile)
+      if (description.trim()) form.append('description', description.trim())
 
-      if (imageFile) {
-        form.append('image', imageFile)
-      }
-
-      if (description.trim()) {
-        form.append('description', description.trim())
-      }
-
-      const { data } = await client.post<IdentificationData>(
-        '/identify/identify',
-        form,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
-
+      const { data } = await client.post<IdentificationData>('/identify/identify', form, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
       setResult(data)
     } catch (err: unknown) {
       const msg =
-        (err as { response?: { data?: { detail?: string } } })?.response?.data
-          ?.detail ?? 'Identification failed. Please try again.'
-
+        (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail
+        ?? 'Identification failed. Please try again.'
       setError(typeof msg === 'string' ? msg : JSON.stringify(msg))
     } finally {
       setLoading(false)
@@ -111,13 +82,9 @@ export default function IdentifyPage() {
       <div className="mx-auto max-w-xl">
         {/* Page header */}
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-forest-800">
-            Identify a Species
-          </h1>
-
+          <h1 className="text-3xl font-bold text-forest-800">Identify a Species</h1>
           <p className="mt-1 text-sm text-earth-500">
-            Upload a photo and/or describe what you see — our AI will identify
-            it.
+            Upload a photo and/or describe what you see — our AI will identify it.
           </p>
         </div>
 
@@ -125,12 +92,11 @@ export default function IdentifyPage() {
           {/* Drop zone */}
           <div
             {...getRootProps()}
-            className={`flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed
-                        px-6 py-10 transition-colors
-                        ${
-                          isDragActive
-                            ? 'border-forest-500 bg-forest-50'
-                            : 'border-earth-300 bg-white hover:border-forest-400 hover:bg-forest-50'
+            className={`flex flex-col items-center justify-center rounded-2xl border-2 border-dashed
+                        px-6 py-10 cursor-pointer transition-colors
+                        ${isDragActive
+                          ? 'border-forest-500 bg-forest-50'
+                          : 'border-earth-300 bg-white hover:border-forest-400 hover:bg-forest-50'
                         }`}
           >
             <input {...getInputProps()} />
@@ -158,16 +124,10 @@ export default function IdentifyPage() {
                     d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
                   />
                 </svg>
-
                 <p className="text-sm font-medium text-earth-700">
-                  {isDragActive
-                    ? 'Drop the image here…'
-                    : 'Drag & drop an image, or click to browse'}
+                  {isDragActive ? 'Drop the image here…' : 'Drag & drop an image, or click to browse'}
                 </p>
-
-                <p className="mt-1 text-xs text-earth-400">
-                  PNG, JPG, WEBP — up to 10 MB
-                </p>
+                <p className="mt-1 text-xs text-earth-400">PNG, JPG, WEBP — up to 10 MB</p>
               </>
             )}
           </div>
@@ -176,11 +136,8 @@ export default function IdentifyPage() {
           {imageFile && (
             <button
               type="button"
-              onClick={() => {
-                setImageFile(null)
-                setPreview(null)
-              }}
-              className="text-xs text-earth-500 transition-colors hover:text-red-500"
+              onClick={() => { setImageFile(null); setPreview(null) }}
+              className="text-xs text-earth-500 hover:text-red-500 transition-colors"
             >
               ✕ Remove image
             </button>
@@ -192,24 +149,23 @@ export default function IdentifyPage() {
               htmlFor="description"
               className="block text-sm font-medium text-earth-700"
             >
-              Description{' '}
-              <span className="font-normal text-earth-400">(optional)</span>
+              Description <span className="text-earth-400 font-normal">(optional)</span>
             </label>
-
             <textarea
               id="description"
               rows={4}
               placeholder="e.g. A bright orange mushroom with white spots, found under oak trees…"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="mt-1 block w-full resize-none rounded-lg border border-earth-300 px-3 py-2 text-sm
-                         focus:border-forest-500 focus:outline-none focus:ring-1 focus:ring-forest-500"
+              className="mt-1 block w-full rounded-lg border border-earth-300 px-3 py-2 text-sm
+                         focus:border-forest-500 focus:outline-none focus:ring-1 focus:ring-forest-500
+                         resize-none"
             />
           </div>
 
           {/* Error */}
           {error && (
-            <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
+            <p className="rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-600">
               {error}
             </p>
           )}
@@ -219,8 +175,9 @@ export default function IdentifyPage() {
             <button
               type="submit"
               disabled={loading}
-              className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-forest-600 px-4 py-2.5 text-sm font-semibold
-                         text-white transition-colors hover:bg-forest-700 disabled:opacity-50"
+              className="flex-1 rounded-lg bg-forest-600 px-4 py-2.5 text-sm font-semibold
+                         text-white hover:bg-forest-700 disabled:opacity-50 transition-colors
+                         flex items-center justify-center gap-2"
             >
               {loading ? (
                 <>
@@ -239,14 +196,12 @@ export default function IdentifyPage() {
                       stroke="currentColor"
                       strokeWidth="4"
                     />
-
                     <path
                       className="opacity-75"
                       fill="currentColor"
                       d="M4 12a8 8 0 018-8v4l3-3-3-3V4a10 10 0 100 20v-4l-3 3 3 3v-4a8 8 0 01-8-8z"
                     />
                   </svg>
-
                   Identifying…
                 </>
               ) : (
@@ -259,7 +214,7 @@ export default function IdentifyPage() {
                 type="button"
                 onClick={handleClear}
                 className="rounded-lg border border-earth-300 px-4 py-2.5 text-sm font-medium
-                           text-earth-700 transition-colors hover:bg-earth-100"
+                           text-earth-700 hover:bg-earth-100 transition-colors"
               >
                 Clear
               </button>
