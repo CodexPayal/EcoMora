@@ -1,18 +1,35 @@
+import asyncio
 import os
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from routers import auth, chat, dashboard, identify, sightings
+from services.openai_service import _get_classifier
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Load the vision model once when the backend starts.
+    if os.getenv("ECOMORA_LOCAL_AI", "true").lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }:
+        await asyncio.to_thread(_get_classifier)
+
+    yield
 
 
 app = FastAPI(
     title="EcoMora API",
     description="AI-powered community biodiversity assistant",
     version="0.1.0",
+    lifespan=lifespan,
 )
-
 
 # ---------------------------------------------------------------------------
 # CORS
@@ -38,13 +55,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 # ---------------------------------------------------------------------------
 # Static files
 # ---------------------------------------------------------------------------
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
-
 
 # ---------------------------------------------------------------------------
 # Routers
@@ -55,7 +70,6 @@ app.include_router(identify.router, prefix="/identify", tags=["identify"])
 app.include_router(sightings.router, prefix="/sightings", tags=["sightings"])
 app.include_router(chat.router, prefix="/chat", tags=["chat"])
 app.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"])
-
 
 # ---------------------------------------------------------------------------
 # Health check
