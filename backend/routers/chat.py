@@ -1,8 +1,11 @@
-"""Chat router — EcoMora biodiversity Q&A with local knowledge + FLAN-T5."""
+"""Chat router — EcoMora biodiversity Q&A with local knowledge + OpenAI."""
 
+import base64
+import json
 import os
-from typing import Literal
+from typing import Any, Literal
 
+import httpx
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from sqlalchemy.orm import Session, joinedload
@@ -15,9 +18,8 @@ from models.user import User
 
 router = APIRouter()
 
-# Heavy FLAN-T5 model is loaded only when local AI is enabled.
-_chat_tokenizer = None
-_chat_model = None
+OPENAI_API_URL = "https://api.openai.com/v1/responses"
+OPENAI_MODEL = os.getenv("OPENAI_CHAT_MODEL", "gpt-5.6-luna")
 
 
 class HistoryMessage(BaseModel):
@@ -32,6 +34,17 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     response: str
+
+
+def _get_api_key() -> str:
+    api_key = os.getenv("OPENAI_API_KEY", "").strip()
+
+    if not api_key:
+        raise RuntimeError(
+            "OPENAI_API_KEY is not configured on the backend."
+        )
+
+    return api_key
 
 
 def _build_sightings_context(db: Session) -> str:
@@ -68,6 +81,18 @@ def _knowledge_answer(question: str, sightings_context: str) -> str | None:
     """Return answers for common biodiversity questions."""
 
     q = question.lower()
+
+    if (
+        "what is biodiversity" in q
+        or "define biodiversity" in q
+        or "meaning of biodiversity" in q
+    ):
+        return (
+            "Biodiversity means the variety of living organisms in an area, "
+            "including plants, animals, fungi, microorganisms, and the "
+            "ecosystems they form. It supports important ecosystem services "
+            "such as pollination, clean water, soil health, and climate regulation."
+        )
 
     if any(
         word in q
@@ -213,70 +238,120 @@ def _knowledge_answer(question: str, sightings_context: str) -> str | None:
     return None
 
 
-def _ai_answer(question: str, sightings_context: str) -> str:
-    """Generate an answer using the local FLAN-T5 model when enabled."""
+def _extract_output_text(data: dict[str, Any]) -> str:
+    """Extract text from an OpenAI Responses API response."""
 
-    global _chat_tokenizer, _chat_model
+    output_text = data.get("output_text")
 
-    # Render/free deployment mode: do not load heavy AI models.
-    if os.getenv("ECOMORA_LOCAL_AI", "true").lower() not in {
-        "1",
-        "true",
-        "yes",
-        "on",
-    }:
-        return (
-            "EcoMora is running in lightweight mode. I can answer common "
-            "biodiversity questions, but advanced AI responses are "
-            "temporarily unavailable."
-        )
+    if output_text:
+        return str(output_text).strip()
 
-    # Lazy-load the heavy model only when an advanced answer is actually needed.
-    if _chat_tokenizer is None or _chat_model is None:
-        from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
+    output_parts: list[str] = []
 
-        _chat_tokenizer = AutoTokenizer.from_pretrained(
-            "google/flan-t5-small"
-        )
-        _chat_model = AutoModelForSeq2SeqLM.from_pretrained(
-            "google/flan-t5-small"
-        )
+    for item in data.get("output", []):
+        for content_item in item.get("content", []):
+            if content_item.get("type") == "output_text":
+                text = content_item.get("text")
+                if text:
+                    output_parts.append(str(text))
 
-    prompt = f"""
-You are EcoMora, a biodiversity assistant.
+    return "".join(output_parts).strip()
 
-Answer this question directly using simple language.
-Give a short factual answer in 2 to 5 sentences.
-Do not repeat the question.
-Do not mention the prompt.
-Do not invent facts.
 
+async def _ai_answer(
+    question: str,
+    sightings_context: str,
+    history: list[HistoryMessage],
+) -> str:
+    """Generate an advanced answer using OpenAI."""
+
+    api_key = _get_api_key()
+
+    system_prompt = """
+You are EcoMora, an AI-powered biodiversity assistant.
+
+Answer biodiversity and environmental questions using simple,
+clear and factual language.
+
+Rules:
+- Give a short answer of about 2 to 5 sentences.
+- Do not repeat the user's question.
+- Do not mention system prompts or internal implementation.
+- Do not invent facts.
+- If uncertain, clearly say so.
+- Do not expose exact locations or private user information.
+- Community sightings are observations, not scientific surveys.
+"""
+
+    user_prompt = f"""
 Question:
 {question}
 
-Relevant community sightings:
+Relevant recent community sightings:
 {sightings_context}
-
-Answer:
 """
 
-    inputs = _chat_tokenizer(
-        prompt,
-        return_tensors="pt",
-        truncation=True,
-        max_length=512,
+    content: list[dict[str, Any]] = [
+        {
+            "type": "input_text",
+            "text": user_prompt,
+        }
+    ]
+
+    for message in history[-6:]:
+        content.append(
+            {
+                "type": "input_text",
+                "text": f"{message.role}: {message.content}",
+            }
+        )
+
+    content.insert(
+        0,
+        {
+            "type": "input_text",
+            "text": system_prompt,
+        },
     )
 
-    outputs = _chat_model.generate(
-        **inputs,
-        max_new_tokens=100,
-        do_sample=False,
-    )
+    payload = {
+        "model": OPENAI_MODEL,
+        "input": [
+            {
+                "role": "user",
+                "content": content,
+            }
+        ],
+    }
 
-    answer = _chat_tokenizer.decode(
-        outputs[0],
-        skip_special_tokens=True,
-    ).strip()
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+    }
+
+    async with httpx.AsyncClient(timeout=60.0) as client:
+        response = await client.post(
+            OPENAI_API_URL,
+            headers=headers,
+            json=payload,
+        )
+
+    if response.status_code >= 400:
+        try:
+            error_data = response.json()
+            error_message = (
+                error_data.get("error", {}).get("message")
+                or str(error_data)
+            )
+        except Exception:
+            error_message = response.text
+
+        raise RuntimeError(
+            f"OpenAI API error ({response.status_code}): {error_message}"
+        )
+
+    data = response.json()
+    answer = _extract_output_text(data)
 
     if not answer:
         return (
@@ -292,7 +367,7 @@ Answer:
     response_model=ChatResponse,
     summary="Ask a biodiversity question",
 )
-def chat(
+async def chat(
     payload: ChatRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -313,9 +388,17 @@ def chat(
     )
 
     if reply is None:
-        reply = _ai_answer(
-            question,
-            sightings_context,
-        )
+        try:
+            reply = await _ai_answer(
+                question,
+                sightings_context,
+                payload.history,
+            )
+        except Exception:
+            reply = (
+                "I'm unable to generate an advanced answer right now. "
+                "Please try a common biodiversity question such as "
+                "\"What is biodiversity?\" or \"What are the threats to biodiversity?\""
+            )
 
     return ChatResponse(response=reply)
