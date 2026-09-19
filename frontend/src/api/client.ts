@@ -5,7 +5,7 @@ import axios from 'axios'
  * Populated by AuthContext once the user logs in.
  */
 const client = axios.create({
-  baseURL: '/api',
+  baseURL: 'https://ecomora-backend-xv2e.onrender.com',
   headers: {
     'Content-Type': 'application/json',
   },
