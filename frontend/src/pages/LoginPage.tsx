@@ -42,7 +42,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-earth-50 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-[#f3f8f1] px-4">
       <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-sm border border-earth-200">
         {/* Logo / heading */}
         <div className="mb-6 text-center">

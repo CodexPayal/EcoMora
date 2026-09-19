@@ -43,7 +43,7 @@ export default function SightingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-earth-50 px-4 py-10">
+    <div className="min-h-screen bg-[#f3f8f1] px-4 py-10">
       <div className="mx-auto max-w-4xl">
         {/* Header */}
         <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

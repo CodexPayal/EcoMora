@@ -78,8 +78,8 @@ export default function IdentifyPage() {
   }
 
   return (
-    <div className="min-h-screen bg-earth-50 px-4 py-10">
-      <div className="mx-auto max-w-xl">
+  <div className="min-h-screen bg-[#f3f8f1] px-4 py-10">
+    <div className="mx-auto max-w-xl">
         {/* Page header */}
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-forest-800">Identify a Species</h1>

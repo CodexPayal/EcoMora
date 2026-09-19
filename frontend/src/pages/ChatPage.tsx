@@ -83,7 +83,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex min-h-[calc(100vh-80px)] flex-col bg-earth-50">
+    <div className="flex min-h-[calc(100vh-80px)] flex-col bg-[#f3f8f1]">
       {/* ------------------------------------------------------------------ */}
       {/* Header                                                               */}
       {/* ------------------------------------------------------------------ */}
