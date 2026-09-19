@@ -2,15 +2,35 @@
 from __future__ import annotations
 
 import io
+import os
 from typing import Any
 
-from PIL import Image
-from transformers import pipeline
 
-_classifier = pipeline(
-    "image-classification",
-    model="microsoft/resnet-50",
-)
+_classifier = None
+
+
+def _local_ai_enabled() -> bool:
+    return os.getenv("ECOMORA_LOCAL_AI", "true").lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+
+
+def _get_classifier():
+    """Load the heavy vision model only when local AI is enabled."""
+    global _classifier
+
+    if _classifier is None:
+        from transformers import pipeline
+
+        _classifier = pipeline(
+            "image-classification",
+            model="microsoft/resnet-50",
+        )
+
+    return _classifier
 
 
 def _extract_species_name(label: str) -> tuple[str, str]:
@@ -33,8 +53,24 @@ async def identify_species(
         )
 
     if image_bytes:
+        if not _local_ai_enabled():
+            return {
+                "common_name": "Identification unavailable",
+                "scientific_name": "Not available",
+                "confidence": 0,
+                "description": (
+                    "Image identification is disabled in lightweight "
+                    "deployment mode. Please verify the species manually "
+                    "or use the local development version of EcoMora."
+                ),
+            }
+
+        from PIL import Image
+
+        classifier = _get_classifier()
+
         image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-        results = _classifier(image, top_k=3)
+        results = classifier(image, top_k=3)
 
         best = results[0] if results else {
             "label": "Unknown",

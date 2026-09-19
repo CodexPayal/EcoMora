@@ -1,10 +1,11 @@
 """Chat router — EcoMora biodiversity Q&A with local knowledge + FLAN-T5."""
+
+import os
 from typing import Literal
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from sqlalchemy.orm import Session, joinedload
-from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 
 from core.database import get_db
 from core.security import get_current_user
@@ -14,8 +15,9 @@ from models.user import User
 
 router = APIRouter()
 
-_chat_tokenizer = AutoTokenizer.from_pretrained("google/flan-t5-small")
-_chat_model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-small")
+# Heavy FLAN-T5 model is loaded only when local AI is enabled.
+_chat_tokenizer = None
+_chat_model = None
 
 
 class HistoryMessage(BaseModel):
@@ -212,7 +214,33 @@ def _knowledge_answer(question: str, sightings_context: str) -> str | None:
 
 
 def _ai_answer(question: str, sightings_context: str) -> str:
-    """Generate an answer using the free local FLAN-T5 model."""
+    """Generate an answer using the local FLAN-T5 model when enabled."""
+
+    global _chat_tokenizer, _chat_model
+
+    # Render/free deployment mode: do not load heavy AI models.
+    if os.getenv("ECOMORA_LOCAL_AI", "true").lower() not in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }:
+        return (
+            "EcoMora is running in lightweight mode. I can answer common "
+            "biodiversity questions, but advanced AI responses are "
+            "temporarily unavailable."
+        )
+
+    # Lazy-load the heavy model only when an advanced answer is actually needed.
+    if _chat_tokenizer is None or _chat_model is None:
+        from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
+
+        _chat_tokenizer = AutoTokenizer.from_pretrained(
+            "google/flan-t5-small"
+        )
+        _chat_model = AutoModelForSeq2SeqLM.from_pretrained(
+            "google/flan-t5-small"
+        )
 
     prompt = f"""
 You are EcoMora, a biodiversity assistant.
