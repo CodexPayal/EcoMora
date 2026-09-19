@@ -1,4 +1,5 @@
-"""Local AI service — free image classification for species identification."""
+"""Local AI service — memory-safe species identification."""
+
 from __future__ import annotations
 
 import io
@@ -19,7 +20,12 @@ def _local_ai_enabled() -> bool:
 
 
 def _get_classifier():
-    """Load a lightweight vision model for deployment."""
+    """
+    Load the local vision model only when explicitly enabled.
+
+    Render's free instance has a 512 MB memory limit, so the local
+    Transformers/PyTorch vision model is disabled by default in production.
+    """
     global _classifier
 
     if _classifier is None:
@@ -56,6 +62,9 @@ async def identify_species(
             "At least one of image_bytes or description must be provided."
         )
 
+    # ------------------------------------------------------------------
+    # Local image AI
+    # ------------------------------------------------------------------
     if image_bytes:
         if not _local_ai_enabled():
             return {
@@ -63,9 +72,9 @@ async def identify_species(
                 "scientific_name": "Not available",
                 "confidence": 0,
                 "description": (
-                    "Image identification is disabled in lightweight "
-                    "deployment mode. Please verify the species manually "
-                    "or use the local development version of EcoMora."
+                    "Local image identification is disabled in the "
+                    "memory-limited production environment. Please verify "
+                    "the species using a trusted biodiversity source."
                 ),
             }
 
@@ -74,6 +83,10 @@ async def identify_species(
         classifier = _get_classifier()
 
         image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+
+        # Keep the image small before inference to reduce memory usage.
+        image.thumbnail((512, 512))
+
         results = classifier(image, top_k=3)
 
         best = results[0] if results else {
@@ -81,8 +94,8 @@ async def identify_species(
             "score": 0,
         }
 
-        label = best["label"]
-        confidence = float(best["score"]) * 100
+        label = str(best.get("label", "Unknown"))
+        confidence = float(best.get("score", 0)) * 100
 
         common_name, scientific_name = _extract_species_name(label)
 
@@ -97,12 +110,16 @@ async def identify_species(
             ),
         }
 
+    # ------------------------------------------------------------------
+    # Description-only request
+    # ------------------------------------------------------------------
     return {
         "common_name": "Unknown",
         "scientific_name": "Not available",
         "confidence": 0,
         "description": (
-            "Text-only identification is not available in the free local "
-            "vision model. Please upload an image."
+            "Text-only identification is not available in the current "
+            "lightweight deployment. Please upload an image and verify "
+            "important observations independently."
         ),
     }
