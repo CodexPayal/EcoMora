@@ -2,13 +2,15 @@
 
 EcoMora is a full-stack web application that helps communities discover, identify, record, and learn about local biodiversity.
 
-The project was developed as part of the **1M1B AI for Sustainability Virtual Internship** and aligns with **SDG 15 — Life on Land**. IBM BOB was used during the ideation and development process to support the creation of the sustainability-focused solution.
+The project was developed as part of the **1M1B AI for Sustainability Virtual Internship**, in collaboration with **AICTE and IBM SkillsBuild**, and aligns with **SDG 15 — Life on Land**.
+
+**IBM BOB** was used during the ideation and development process to support the creation of this sustainability-focused solution.
 
 ---
 
 ## 🌱 Project Overview
 
-EcoMora provides a community-focused platform for biodiversity observation and awareness.
+EcoMora provides a community-focused platform for biodiversity observation, awareness, and learning.
 
 Users can:
 
@@ -28,7 +30,7 @@ The application also includes responsible AI and location-privacy guidance to en
 
 ### SDG 15 — Life on Land
 
-EcoMora supports SDG 15 by encouraging:
+EcoMora supports **SDG 15 — Life on Land** by encouraging:
 
 * Biodiversity observation and documentation
 * Community participation in biodiversity awareness
@@ -42,13 +44,19 @@ EcoMora supports SDG 15 by encouraging:
 
 **Program:** 1M1B AI for Sustainability Virtual Internship
 
+**Collaborating Organizations:** 1M1B, AICTE, and IBM SkillsBuild
+
 **Project:** EcoMora — AI-Powered Community Biodiversity Assistant
 
 **Primary SDG:** SDG 15 — Life on Land
 
 **Ideation / Development Tool:** IBM BOB
 
-IBM BOB was used as part of the project ideation and development process. The final application was implemented using React, FastAPI, local AI models, SQLite, and biodiversity data APIs.
+The project was developed as part of the **1M1B AI for Sustainability Virtual Internship** in collaboration with **AICTE and IBM SkillsBuild**.
+
+**IBM BOB** was used during the ideation and development process to support the planning and development of the sustainability-focused solution.
+
+The final application was implemented using **React, FastAPI, local AI models, SQLite/PostgreSQL, and biodiversity data APIs**.
 
 ---
 
@@ -133,7 +141,7 @@ EcoMora uses free, locally running AI models for the MVP.
 
 The application uses:
 
-**Hugging Face Transformers + ResNet-50**
+**Hugging Face Transformers + MobileNetV2**
 
 The model performs image classification locally and returns a prediction with a confidence score.
 
@@ -199,22 +207,22 @@ The application avoids displaying unnecessary exact location information in publ
 
 ## 🧰 Technology Stack
 
-| Layer               | Technology                              |
-| ------------------- | --------------------------------------- |
-| Frontend            | React + Vite + TypeScript               |
-| Styling             | Tailwind CSS                            |
-| Mapping             | Leaflet + OpenStreetMap + React-Leaflet |
-| Charts              | Recharts                                |
-| Backend             | FastAPI + Python 3.11                   |
-| Database            | SQLite                                  |
-| ORM                 | SQLAlchemy                              |
-| Database Migrations | Alembic                                 |
-| Authentication      | JWT Bearer Tokens                       |
-| Image AI            | Hugging Face Transformers + ResNet-50   |
-| Chat AI             | Hugging Face FLAN-T5                    |
-| Biodiversity Data   | iNaturalist API + GBIF API              |
-| HTTP Client         | HTTPX                                   |
-| Containerization    | Docker + Docker Compose                 |
+| Layer | Technology |
+|---|---|
+| Frontend | React + Vite + TypeScript |
+| Styling | Tailwind CSS |
+| Mapping | Leaflet + OpenStreetMap + React-Leaflet |
+| Charts | Recharts |
+| Backend | FastAPI + Python 3.11 |
+| Database | SQLite / PostgreSQL |
+| ORM | SQLAlchemy |
+| Database Migrations | Alembic |
+| Authentication | JWT Bearer Tokens |
+| Image AI | Hugging Face Transformers + MobileNetV2 |
+| Chat AI | Hugging Face FLAN-T5 |
+| Biodiversity Data | iNaturalist API + GBIF API |
+| HTTP Client | HTTPX |
+| Containerization | Docker + Docker Compose |
 
 ---
 
@@ -267,18 +275,14 @@ Make sure the following are installed:
 
 Docker is optional for local development.
 
----
-
-## 1. Clone the Repository
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/CodexPayal/EcoMora.git
 cd EcoMora
 ```
 
----
-
-## 2. Configure Environment Variables
+### 2. Configure Environment Variables
 
 Copy the example environment file:
 
@@ -306,9 +310,7 @@ JWT_SECRET=your-generated-secret
 
 > **Important:** Never commit `.env`, passwords, API keys, or other secrets to GitHub.
 
----
-
-## 3. Backend Setup
+### 3. Backend Setup
 
 Open a terminal in the backend directory:
 
@@ -316,16 +318,16 @@ Open a terminal in the backend directory:
 cd backend
 ```
 
-Create a Python virtual environment:
+Create a Python virtual environment.
 
-### Windows
+#### Windows
 
 ```powershell
 py -3.11 -m venv .venv
 .venv\Scripts\activate
 ```
 
-### macOS / Linux
+#### macOS / Linux
 
 ```bash
 python3.11 -m venv .venv
@@ -356,9 +358,7 @@ Interactive API documentation:
 http://127.0.0.1:8000/docs
 ```
 
----
-
-## 4. Frontend Setup
+### 4. Frontend Setup
 
 Open a new terminal:
 
@@ -398,19 +398,19 @@ Docker is provided as part of the project's deployment configuration.
 
 ## 🔌 API Overview
 
-| Method   | Endpoint             | Authentication | Description                         |
-| -------- | -------------------- | -------------- | ----------------------------------- |
-| `GET`    | `/health`            | —              | Backend health check                |
-| `POST`   | `/auth/register`     | —              | Register a user                     |
-| `POST`   | `/auth/login`        | —              | Login and receive JWT               |
-| `GET`    | `/auth/me`           | ✅              | Get authenticated user              |
-| `POST`   | `/identify/identify` | ✅              | Identify a species from an image    |
-| `GET`    | `/sightings`         | —              | List community sightings            |
-| `POST`   | `/sightings`         | ✅              | Create a sighting                   |
-| `PATCH`  | `/sightings/{id}`    | ✅              | Update own sighting                 |
-| `DELETE` | `/sightings/{id}`    | ✅              | Delete own sighting                 |
-| `POST`   | `/chat`              | ✅              | Ask EcoMora a biodiversity question |
-| `GET`    | `/dashboard/stats`   | —              | Retrieve dashboard statistics       |
+| Method | Endpoint | Authentication | Description |
+|---|---|---|---|
+| `GET` | `/health` | — | Backend health check |
+| `POST` | `/auth/register` | — | Register a user |
+| `POST` | `/auth/login` | — | Login and receive JWT |
+| `GET` | `/auth/me` | ✅ | Get authenticated user |
+| `POST` | `/identify/identify` | ✅ | Identify a species from an image |
+| `GET` | `/sightings` | — | List community sightings |
+| `POST` | `/sightings` | ✅ | Create a sighting |
+| `PATCH` | `/sightings/{id}` | ✅ | Update own sighting |
+| `DELETE` | `/sightings/{id}` | ✅ | Delete own sighting |
+| `POST` | `/chat` | ✅ | Ask EcoMora a biodiversity question |
+| `GET` | `/dashboard/stats` | — | Retrieve dashboard statistics |
 
 Interactive API documentation:
 
@@ -459,7 +459,7 @@ Coordinates are still used internally to position biodiversity observations on t
 
 * ✅ React + Vite frontend
 * ✅ FastAPI backend
-* ✅ SQLite database
+* ✅ SQLite / PostgreSQL database
 * ✅ User registration and login
 * ✅ JWT authentication
 * ✅ AI image-based species identification
@@ -476,6 +476,7 @@ Coordinates are still used internally to position biodiversity observations on t
 * ✅ Location privacy protection
 * ✅ Docker configuration
 * ✅ GitHub repository
+* ✅ Cloud deployment
 
 ---
 
@@ -491,8 +492,8 @@ Possible future improvements include:
 * Community moderation
 * Mobile application support
 * Offline biodiversity observation support
-* Production cloud deployment
 * Improved image verification and confidence handling
+* More advanced conversational biodiversity assistance
 
 ---
 
@@ -500,7 +501,27 @@ Possible future improvements include:
 
 EcoMora demonstrates how AI, web technologies, community participation, and biodiversity data can be combined to create a sustainability-focused digital solution.
 
-The project focuses on making biodiversity observation and learning more accessible while considering AI uncertainty and location privacy.
+The project focuses on making biodiversity observation and learning more accessible while considering AI uncertainty, responsible reporting, and location privacy.
+
+---
+
+## 🤝 Internship & Sustainability Context
+
+EcoMora was developed as part of the:
+
+**1M1B AI for Sustainability Virtual Internship**
+
+in collaboration with:
+
+* **1M1B**
+* **AICTE**
+* **IBM SkillsBuild**
+
+The project is aligned with:
+
+**SDG 15 — Life on Land**
+
+**IBM BOB** was used during the ideation and development process to support the creation and refinement of the solution.
 
 ---
 
