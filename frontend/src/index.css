@@ -4,8 +4,8 @@
 
 @layer base {
   body {
-    @apply bg-earth-50 text-bark-900 font-sans antialiased;
-  }
+  @apply bg-[#f3f8f1] text-bark-900 font-sans antialiased;
+}
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-semibold tracking-tight;
